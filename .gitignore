@@ -1,0 +1,29 @@
+# Виртуальное окружение
+.venv/
+venv/
+env/
+
+# Дампы БД
+dumps/
+
+# Миграции Alembic (если хочешь генерить заново на сервере)
+migrations/
+
+# Файлы окружения
+.env
+
+# Локальные скрипты
+make_dump.py
+
+# IDE
+.idea/
+.vscode/
+
+# Кэш Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Логи
+*.log
