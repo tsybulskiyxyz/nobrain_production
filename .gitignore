@@ -11,6 +11,7 @@ migrations/
 
 # Файлы окружения
 .env
+alembic.ini
 
 # Локальные скрипты
 make_dump.py
