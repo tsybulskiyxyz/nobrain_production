@@ -1,0 +1,240 @@
+
+================================================================================
+Файл: nobrain_bot\app.py
+================================================================================
+import asyncio
+from aiogram import Bot, Dispatcher
+from core.config import get_settings
+from nobrain_bot.core.routers import setup_routers
+
+
+async def main():
+    config = get_settings()
+    bot = Bot(token=config.bot_token)
+
+    dp = Dispatcher()
+    dp.include_router(setup_routers())
+
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+================================================================================
+Файл: nobrain_bot\core\config.py
+================================================================================
+from dataclasses import dataclass
+from dotenv import load_dotenv
+import os
+
+# Загружаем .env
+load_dotenv()
+
+
+@dataclass
+class Settings:
+    bot_token: str
+    admin_id: int
+    site_url: str
+    blog_url: str
+    manager_url: str
+
+
+def get_settings() -> Settings:
+    return Settings(
+        bot_token=os.getenv("BOT_TOKEN", ""),
+        admin_id=int(os.getenv("ADMIN_ID", "0")),
+        site_url=os.getenv("SITE_URL", ""),
+        blog_url=os.getenv("BLOG_URL", ""),
+        manager_url=os.getenv("MANAGER_URL", ""),
+    )
+
+
+
+================================================================================
+Файл: nobrain_bot\core\routers.py
+================================================================================
+from aiogram import Router
+
+from nobrain_bot.features.common.handlers.start_handler import router as start_router
+from nobrain_bot.features.common.handlers.fallback_handler import router as fallback_router
+from nobrain_bot.features.common.handlers.links_handlers import router as links_router
+from nobrain_bot.features.temp_handler import router as temp_router
+
+ALL_ROUTERS: tuple[Router, ...] = (
+    start_router,
+    links_router,
+    temp_router,
+
+    fallback_router
+    )
+
+
+def setup_routers() -> Router:
+    """
+    Возвращает корневой Router и включает все роутеры в заданном порядке.
+    """
+    root = Router(name="root")
+    for r in ALL_ROUTERS:
+        root.include_router(r)
+    return root
+
+
+================================================================================
+Файл: nobrain_bot\features\temp_handler.py
+================================================================================
+from aiogram import F, Router
+from aiogram.types import Message
+
+router = Router(name='temp_router')
+
+@router.message(F.video)
+async def get_video_id(message: Message):
+    await message.answer(f"ID video: {message.video.file_id}")
+
+================================================================================
+Файл: nobrain_bot\features\common\texts.py
+================================================================================
+def welcome(name: str) -> str:
+    return (
+        f"Йо, {name or 'друг'}! ✌️\n\n"
+        "Ты в боте студии 🧠 `nobrain_production`\n"
+        "🌌 Мы превращаем идеи в продукты\n\n"
+        "Хочешь узнать о нас, глянуть услуги или сразу оформить заказ❓\n\n"
+        "👇 Всё через меню ниже."
+    )
+
+
+ABOUT_TEXT = (
+    "🧠 `nobrain_production` — студия, где креатив встречается с технологиями.\n\n"
+    "Мы создаём продукты 🛍: логотипы, тексты, сайты-визитки, Telegram-боты.\n\n"
+    "Подробности на сайте по ссылке ниже 👇"
+)
+
+BLOG_TEXT = (
+    "Telegram для бизнеса 📲, важность айдентики 🎨 и продукты из идей 💡\n\n"
+    "Всё это — в нашем блоге 👇"
+)
+
+MANAGER_TEXT = "Есть мысль, задача или просто вопрос❓\n\nНапиши менеджеру 👇"
+
+
+
+
+================================================================================
+Файл: nobrain_bot\features\common\handlers\fallback_handler.py
+================================================================================
+from aiogram import Router
+from aiogram.types import Message
+
+from nobrain_bot.features.common.keyboards.main_menu_keyboard import main_menu_kb
+
+router = Router(name="fallback")
+
+
+@router.message()
+async def fallback(message: Message):
+    await message.answer(
+        text=(
+            "😕 Я тебя не понял.\n"
+            "Выбери действие через меню ниже 👇"
+        ),
+        reply_markup=main_menu_kb()
+    )
+
+
+================================================================================
+Файл: nobrain_bot\features\common\handlers\links_handlers.py
+================================================================================
+from aiogram import Router, F
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from nobrain_bot.core.config import get_settings
+from nobrain_bot.features.common.keyboards.links_kb import about_kb, blog_kb, manager_kb
+from nobrain_bot.features.common.texts import ABOUT_TEXT, BLOG_TEXT, MANAGER_TEXT
+
+router = Router(name="liks")
+
+
+@router.message(F.text == "🧠 Что такое nobrain_production?")
+async def about_handler(message: Message):
+    config = get_settings()
+    await message.answer(text=ABOUT_TEXT, reply_markup=about_kb(config), parse_mode='Markdown')
+
+
+@router.message(F.text == "📰 Наш блог")
+async def blog_handler(message: Message):
+    config = get_settings()
+    await message.answer(text=BLOG_TEXT, reply_markup=blog_kb(config))
+
+
+@router.message(F.text == "📱 Связаться с менеджером")
+async def manager_handler(message: Message):
+    config = get_settings()
+    await message.answer(text=MANAGER_TEXT, reply_markup=manager_kb(config))
+
+================================================================================
+Файл: nobrain_bot\features\common\handlers\start_handler.py
+================================================================================
+from aiogram import Router, F
+from aiogram.filters import CommandStart
+from aiogram.types import Message
+
+from nobrain_bot.features.common.texts import welcome
+from nobrain_bot.features.common.keyboards.main_menu_keyboard import main_menu_kb
+
+
+router = Router(name="start")
+
+
+@router.message(F.text == '/start')
+async def cmd_start(message: Message):
+    await message.answer(text=welcome(message.from_user.first_name), parse_mode='Markdown', reply_markup=main_menu_kb())
+
+================================================================================
+Файл: nobrain_bot\features\common\keyboards\links_kb.py
+================================================================================
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+
+def about_kb(config) -> InlineKeyboardMarkup:
+    kb = [
+        [InlineKeyboardButton(text="🌐 Перейти на сайт", url=config.site_url)]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=kb)
+
+
+def blog_kb(config) -> InlineKeyboardMarkup:
+    kb = [
+        [InlineKeyboardButton(text="📖 Открыть блог", url=config.blog_url)]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=kb)
+
+
+def manager_kb(config) -> InlineKeyboardMarkup:
+    kb = [
+        [InlineKeyboardButton(text="📱 Написать менеджеру", url=config.manager_url)]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=kb)
+
+
+================================================================================
+Файл: nobrain_bot\features\common\keyboards\main_menu_keyboard.py
+================================================================================
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
+
+
+def main_menu_kb() -> ReplyKeyboardMarkup:
+    kb = [
+        [KeyboardButton(text="🧠 Что такое nobrain_production?")],
+        [KeyboardButton(text="💼 Витрина услуг")],
+        [KeyboardButton(text="📝 Создать заказ")],
+        [KeyboardButton(text="📱 Связаться с менеджером")],
+        [ KeyboardButton(text="📰 Наш блог")]
+    ]
+    return ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        input_field_placeholder="Выберите действие"
+    )
+
