@@ -14,7 +14,7 @@ async def about_handler(message: Message):
     await message.answer(text=ABOUT_TEXT, reply_markup=about_kb(config), parse_mode='Markdown')
 
 
-@router.message(F.text == "📰 Наш блог")
+@router.message(F.text == "📰 Наш канал")
 async def blog_handler(message: Message):
     config = get_settings()
     await message.answer(text=BLOG_TEXT, reply_markup=blog_kb(config))

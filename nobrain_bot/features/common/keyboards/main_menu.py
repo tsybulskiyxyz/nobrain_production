@@ -6,7 +6,7 @@ def main_menu_kb() -> ReplyKeyboardMarkup:
         [KeyboardButton(text="🧠 Что такое nobrain_production?")],
         [KeyboardButton(text="📝 Оформить заказ")],
         [KeyboardButton(text="📱 Связаться с менеджером")],
-        [ KeyboardButton(text="📰 Наш блог")]
+        [ KeyboardButton(text="📰 Наш канал")]
     ]
     return ReplyKeyboardMarkup(
         keyboard=kb,

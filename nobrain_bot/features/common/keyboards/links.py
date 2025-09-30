@@ -10,7 +10,7 @@ def about_kb(config) -> InlineKeyboardMarkup:
 
 def blog_kb(config) -> InlineKeyboardMarkup:
     kb = [
-          [InlineKeyboardButton(text="📖 Открыть блог", url=config.blog_url)]
+          [InlineKeyboardButton(text="📖 Открыть канал", url=config.blog_url)]
     ]
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
