@@ -3,8 +3,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 SERVICES = {
     "bot": "Бот",
     "logo": "Логотип",
-    "site": "Сайт",
-    "content": "Контент"
+    "site": "Сайт"
 }
 
 
