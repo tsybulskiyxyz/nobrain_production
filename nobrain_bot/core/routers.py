@@ -10,7 +10,6 @@ from nobrain_bot.features.order.handlers.base_questions import router as order_b
 from nobrain_bot.features.order.handlers.logo_questions import router as order_logo
 from nobrain_bot.features.order.handlers.site_questions import router as order_site
 from nobrain_bot.features.order.handlers.bot_questions import router as order_bot
-from nobrain_bot.features.order.handlers.content_questions import router as order_content
 from nobrain_bot.features.order.handlers.finalize_order import router as order_finalize
 from nobrain_bot.features.order.handlers.admin_decision import router as admin_decision
 from nobrain_bot.features.order.handlers.client_decision import router as client_decision
@@ -26,7 +25,6 @@ ALL_ROUTERS: tuple[Router, ...] = (
     order_logo,
     order_site,
     order_bot,
-    order_content,
     order_finalize,
     admin_decision,
     client_decision,

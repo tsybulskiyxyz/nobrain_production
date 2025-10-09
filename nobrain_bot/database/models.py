@@ -13,7 +13,7 @@ class Order(Base):
     # Telegram ID клиента
     tg_user_id: Mapped[int] = mapped_column(BigInteger, index=True, nullable=False)
 
-    # Список выбранных услуг — ["logo", "site", "bot", "content"]
+    # Список выбранных услуг — ["logo", "site", "bot"]
     services: Mapped[list[str]] = mapped_column(JSON, nullable=False)
 
     # Базовые ответы (about, audience, goal, timing, budget)
